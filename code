@@ -1,0 +1,129 @@
+% Step 1: Load the IR Image
+img = imread('C:/Users/prana/Downloads/a.jpg');  % Load your IR image file
+
+% Step 2: Convert Image to Grayscale and Apply Filtering
+img_gray = rgb2gray(img);                     % Convert to grayscale
+img_filtered = medfilt2(img_gray, [3 3]);     % Apply median filter for noise reduction
+
+% Step 3: Object Detection using Adaptive Thresholding and Morphological Filtering
+thresholdLevel = adaptthresh(img_filtered, 0.5);   % Adaptive threshold level
+BW = imbinarize(img_filtered, thresholdLevel);     % Binary image for target detection
+BW = bwareaopen(BW, 50);                           % Remove small regions
+se = strel('disk', 3);
+BW = imclose(BW, se);                              % Fill small gaps
+
+% Step 4: Analyze Detected Objects
+stats = regionprops(BW, 'Centroid', 'Area', 'BoundingBox', 'PixelIdxList');
+targets = [];
+count = 1;
+
+% Step 5: Identify Targets, Classify, and Assign Insect Names
+if ~isempty(stats)  % Check if any targets are detected
+    for i = 1:length(stats)
+        if stats(i).Area > 50  % Only consider objects above min area threshold
+            targetRegion = img_gray(stats(i).PixelIdxList);  % Get the target region
+            
+            % Calculate mean intensity for classification
+            meanIntensity = mean(targetRegion(:)); 
+            
+            % Classification logic with insect names
+            if meanIntensity > 100  % Example condition for pest type 1
+                insectName = 'Aphid';  % Insect Name in English
+                insectNameHindi = 'आफिड';  % Insect Name in Hindi
+                insectNameTelugu = 'ఆఫిడ్';  % Insect Name in Telugu
+                insectNameMarathi = 'आफिड';  % Insect Name in Marathi
+                pestType = 'Pest Type 1';  % Pest Type in English
+                pestTypeHindi = 'कीट प्रकार 1';  % Pest Type in Hindi
+                pestTypeTelugu = 'పురుగు కిరీటము 1';  % Pest Type in Telugu
+                pestTypeMarathi = 'पुर्णकाकी प्रकार 1';  % Pest Type in Marathi
+                preventionEnglish = 'Use organic insecticides and introduce natural predators.';  % Prevention method in English
+                preventionHindi = 'कार्बनिक कीटनाशकों का उपयोग करें और प्राकृतिक शिकारियों को पेश करें।';  % Prevention method in Hindi
+                preventionTelugu = 'కార్బనిక్ కీటక మందులను ఉపయోగించి, సహజ శికారులను ప్రవేశపెట్టండి.';  % Prevention method in Telugu
+                preventionMarathi = 'कार्बनिक कीटकनाशकांचा वापर करा आणि नैसर्गिक शिकार्‍यांची ओळख करून द्या.';  % Prevention method in Marathi
+            else  % Example condition for pest type 2
+                insectName = 'Whitefly';  % Insect Name in English
+                insectNameHindi = 'सफेद मक्खी';  % Insect Name in Hindi
+                insectNameTelugu = 'తెలుపు పుడుపు';  % Insect Name in Telugu
+                insectNameMarathi = 'पांढरी माशी';  % Insect Name in Marathi
+                pestType = 'Pest Type 2';  % Pest Type in English
+                pestTypeHindi = 'कीट प्रकार 2';  % Pest Type in Hindi
+                pestTypeTelugu = 'పురుగు కిరీటము 2';  % Pest Type in Telugu
+                pestTypeMarathi = 'पुर्णकाकी प्रकार 2';  % Pest Type in Marathi
+                preventionEnglish = 'Implement crop rotation and use neem oil.';  % Prevention method in English
+                preventionHindi = 'फसल चक्र का पालन करें और नीम का तेल लगाएं।';  % Prevention method in Hindi
+                preventionTelugu = 'ఫసల మరుగును చొప్పించి, నిమ్మ కొమ్మను ఉపయోగించండి.';  % Prevention method in Telugu
+                preventionMarathi = 'पीक चक्राचा अवलंब करा आणि निंबाच्या तेलाचा वापर करा.';  % Prevention method in Marathi
+            end
+            
+            % Store target info
+            targets(count).Position = stats(i).Centroid; % Store target centroid
+            targets(count).Size = stats(i).Area;         % Store target area
+            targets(count).BoundingBox = stats(i).BoundingBox;  % Store bounding box
+            targets(count).InsectName = insectName;      % Store insect name in English
+            targets(count).InsectNameHindi = insectNameHindi;  % Store insect name in Hindi
+            targets(count).InsectNameTelugu = insectNameTelugu;  % Store insect name in Telugu
+            targets(count).InsectNameMarathi = insectNameMarathi;  % Store insect name in Marathi
+            targets(count).PestType = pestType;           % Store identified pest type in English
+            targets(count).PestTypeHindi = pestTypeHindi;  % Store identified pest type in Hindi
+            targets(count).PestTypeTelugu = pestTypeTelugu;  % Store identified pest type in Telugu
+            targets(count).PestTypeMarathi = pestTypeMarathi;  % Store identified pest type in Marathi
+            targets(count).PreventionEnglish = preventionEnglish; % Store prevention method in English
+            targets(count).PreventionHindi = preventionHindi;   % Store prevention method in Hindi
+            targets(count).PreventionTelugu = preventionTelugu; % Store prevention method in Telugu
+            targets(count).PreventionMarathi = preventionMarathi; % Store prevention method in Marathi
+            count = count + 1;
+        end
+    end
+end
+
+% Step 6: Display Results
+if ~isempty(targets)
+    figure;
+    imshow(img); % Display raw IR image
+    hold on;
+    for i = 1:length(targets)
+        % Draw bounding box
+        rectangle('Position', targets(i).BoundingBox, 'EdgeColor', 'r', 'LineWidth', 1.5);
+        
+        % Display insect name and pest type
+        text(targets(i).Position(1), targets(i).Position(2), ...
+            sprintf('Insect: %s\nType: %s', targets(i).InsectName, targets(i).PestType), ...
+            'Color', 'yellow', 'FontSize', 10, 'HorizontalAlignment', 'center');
+    end
+    title('Detected Pests');
+    hold off;
+    
+    % Step 7: Create Tabular Classification Output
+    pestData = cell(length(targets), 12);  % Initialize cell array for pest data
+    for i = 1:length(targets)
+        pestData{i, 1} = sprintf('Pest %d', i);          % Pest ID
+        pestData{i, 2} = targets(i).Position;            % Position
+        pestData{i, 3} = targets(i).Size;                % Size
+        pestData{i, 4} = targets(i).InsectName;         % Insect Name in English
+        pestData{i, 5} = targets(i).InsectNameHindi;    % Insect Name in Hindi
+        pestData{i, 6} = targets(i).InsectNameTelugu;   % Insect Name in Telugu
+        pestData{i, 7} = targets(i).InsectNameMarathi;   % Insect Name in Marathi
+        pestData{i, 8} = targets(i).PestType;            % Pest Type in English
+        pestData{i, 9} = targets(i).PestTypeHindi;       % Pest Type in Hindi
+        pestData{i, 10} = targets(i).PestTypeTelugu;      % Pest Type in Telugu
+        pestData{i, 11} = targets(i).PestTypeMarathi;      % Pest Type in Marathi
+        pestData{i, 12} = targets(i).PreventionEnglish;   % Prevention Method in English
+        pestData{i, 13} = targets(i).PreventionHindi;     % Prevention Method in Hindi
+        pestData{i, 14} = targets(i).PreventionTelugu;    % Prevention Method in Telugu
+        pestData{i, 15} = targets(i).PreventionMarathi;    % Prevention Method in Marathi
+    end
+    
+    % Create table from pest data
+    pestTable = cell2table(pestData, 'VariableNames', {'PestID', 'Position', 'Size', 'InsectName', 'InsectNameHindi', 'InsectNameTelugu', 'InsectNameMarathi', 'PestType', 'PestTypeHindi', 'PestTypeTelugu', 'PestTypeMarathi', 'PreventionEnglish', 'PreventionHindi', 'PreventionTelugu', 'PreventionMarathi'});
+    
+    % Display the table
+    disp('Detected Pests Summary:');
+    disp(pestTable);
+    
+    % Step 8: Write Results to Excel
+    outputFileName = 'C:\Users\prana\Documents\PestDetectionResults.xlsx';  % Change to a writable location
+    writetable(pestTable, outputFileName);  % Save results to an Excel file
+    fprintf('Results saved to %s\n', outputFileName);  % Confirm save action
+else
+    disp('No pests detected.');
+end
