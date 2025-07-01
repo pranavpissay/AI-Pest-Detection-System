@@ -1,26 +1,25 @@
-# AI Pest Detection System  
-A Python-based deep learning model to identify early-stage crop infections from leaf images using Convolutional Neural Networks (CNN).
+# AI-Based Pest Detection System  
+A MATLAB-based image processing project to detect early-stage crop infections by analyzing leaf images.
 
 ## 🌾 Overview  
-This project helps in identifying common plant diseases at an early stage by classifying infected leaves using a trained CNN model. It supports farmers and agricultural agencies in taking timely preventive actions.
+This project identifies diseased regions in crop leaves using image analysis techniques. It helps in early detection of infections, improving crop health monitoring and precision agriculture.
 
 ## 🔧 Technologies Used  
-- Python  
-- TensorFlow / Keras  
-- Convolutional Neural Networks (CNN)  
-- Image Classification  
-- NumPy, OpenCV, Matplotlib
+- MATLAB  
+- Image Processing Toolbox  
+- Segmentation and Thresholding  
+- Feature Extraction  
+- Classification (Optional – ML toolbox or manual rules)
 
 ## 🧠 Key Features  
-- Trained on publicly available leaf disease datasets  
-- Achieved 92%+ accuracy in test classification  
-- Supports multi-class detection of plant diseases  
-- Scalable for mobile and edge deployment
+- Image preprocessing (filtering, resizing)  
+- Detection of infected leaf regions  
+- Visual output with bounding boxes or masks  
+- Suitable for small-scale field diagnosis
 
 ## 📂 Repository Contents  
-- `model_training.ipynb` – Jupyter notebook for model training  
-- `dataset/` – Sample leaf images (optional for demo)  
-- `images/` – Output visualizations  
+- `pest_detection.m` – Main MATLAB script  
+- `images/` – Input and output leaf images  
 - `README.md` – Project documentation
 
 ## 👨‍💻 Author  
@@ -29,10 +28,9 @@ B.Tech (EEE) | Minor in Data Science
 VNRVJIET, Hyderabad  
 [LinkedIn](https://www.linkedin.com/in/pranav-pissay)
 
-## 📌 Project Duration  
-**Feb 2024 – Apr 2024**  
-Team Size: 4
-Mentor: Internal Guide, VNRVJIET
+## 📌 Project Duration   
+Team Size: 4 
+Mentor: Internal Guide, EEE Department
 
 ## 📎 License  
-This project is for academic and research purposes only.
+This project is for academic use only.
